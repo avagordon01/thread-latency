@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <atomic>
+#include <vector>
 #include <aether/common/tcp.hh>
 
 #include <sys/socket.h>
@@ -12,13 +13,22 @@
 
 using namespace::std::literals;
 
-int main() {
-    size_t iters = 1'000'000;
+int main(int argc, char *argv[]) {
+    std::vector<std::string> args;
+    if (argc > 1) {
+        args.assign(argv + 1, argv + argc);
+    }
+    std::string mode = "--atomic";
+    if (args.size() > 0) {
+        mode = args[0];
+    }
 
+    size_t iters = 0;
     using time = std::chrono::high_resolution_clock;
     auto t0 = time::now();
-    std::string mode = "--tcp";
     if (mode == "--atomic") {
+        iters = 100'000'000;
+
         std::atomic<bool> flag {};
 
         std::jthread a([iters, &flag]{
@@ -35,6 +45,8 @@ int main() {
             }
         });
     } else if (mode == "--tcp") {
+        iters = 1'000'000;
+
         std::jthread a([iters]{
             aether::tcp::os_socket s = aether::tcp::connect_to_host_port_with_timeout("127.0.0.1", "9999", 10);
             (void)s;
