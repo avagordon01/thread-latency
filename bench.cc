@@ -60,24 +60,7 @@ int main(int argc, char *argv[]) {
             }
         });
         std::jthread b([iters]{
-            int sock = socket(AF_INET, SOCK_STREAM, 0);
-            struct sockaddr_in addr;
-            if (!inet_aton("127.0.0.1", &addr.sin_addr)) {
-                std::cerr << "invalid address" << std::endl;
-                abort();
-            }
-            addr.sin_port = htons(atoi("9999"));
-            addr.sin_family = AF_INET;
-            struct sockaddr* saddr = reinterpret_cast<struct sockaddr*>(&addr);
-            if (bind(sock, saddr, sizeof(*saddr))) {
-                perror("bind");
-                abort();
-            }
-            if (listen(sock, -42)) {
-                perror("listen");
-                abort();
-            }
-            int s = accept(sock, NULL, 0);
+            aether::tcp::os_socket s = aether::tcp::accept_from_host_port("127.0.0.1", "9999");
             bool b_flag = true;
             for (size_t counter = 0; counter < iters; counter++){
                 if (counter & 1) {

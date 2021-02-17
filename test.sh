@@ -4,4 +4,5 @@ if [[ ! -d out ]]; then
     CXX=clang++ meson setup out
 fi
 meson compile -C out
-./out/bench
+./out/bench --atomic
+./out/bench --tcp
